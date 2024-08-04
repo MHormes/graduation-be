@@ -1,0 +1,45 @@
+spring:
+  #upload size changes
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  #Data related properties
+  datasource:
+    url: jdbc:h2:mem:testdb
+    username: admin
+    password:
+    driverClassName: org.h2.Driver
+  #In memory DB
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        cache:
+          use_second_level_cache: false
+      format-sql: false
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: INFO  # Log all SQL statements by setting to debug
+        type.descriptor.sql.BasicBinder: TRACE  # Log prepared statement parameters
+
+#Security related properties
+jwt:
+  secret: YmFzZTY0RW5jb2RlZFNlY3JldEtleVF1YWRTb2x1dGlvbnM=
+  expiration: 100
+  refreshExpiration: 100
+
+#Server related properties
+server:
+  servlet:
+    context-path: /api

@@ -1,0 +1,28 @@
+ @startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+!define DEVICONS https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons
+!define FONTAWESOME https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-5
+!include DEVICONS/java.puml
+!include FONTAWESOME/users.puml
+
+Person(user, "User", "User of Clipper MS", $sprite="users")
+
+Container(fe, "FE (Client)", "React.js", "The user-interface of the hour analysis tool", $sprite="react")
+Container(be, "BE (Spring Boot)", "Spring boot REST API", "Spring boot backend", $sprite="spring")
+
+ContainerDb(db, "Database", "Postgres", "Holds processed hour logging data", $sprite="postgresql")
+
+System_Ext(yo, "Yoobi", "The hour logging tool used in-house at Quad Solutions.")
+System_Ext(ph, "Public Holiday API", "API that exposes the public holidays per year per country")
+
+Rel(user, fe, "Uses")
+
+Rel(fe, be, "HTTPS request")
+
+Rel(be, db, "Reads from and writes to using JDBC (SQL) & Hibernate (ORM)")
+Rel(be, ph, "API calls")
+Rel(be, yo, "CSV file importing")
+
+SHOW_FLOATING_LEGEND()
+@enduml

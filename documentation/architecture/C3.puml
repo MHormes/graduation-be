@@ -1,0 +1,98 @@
+@startuml
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+skinparam linetype ortho
+
+' External user
+Person(user, "User", "A user of the system")
+
+' Main system boundary
+System_Boundary(system, "Hour analysis tool") {
+    ' UI Container
+    Container(web_app, "Web based Front end", "React.js", "The UI for the hour analysis tool")
+
+    ' Backend boundary
+    Boundary(backend, "Spring Backend") {
+        ' Backend Containers
+
+        Boundary(security, "") {
+            Container(jwt_request_filter, "JWT request filter", "filter class", "JWT filter checking JWT content on requests")
+            Container(jwt_util, "JWT util", "JWT util class", "JWT util class")
+            Container(security_filter, "Security filter", "Security filter", "Security filter checking authorization on requests")
+        }
+
+        Boundary(Import, "") {
+                Container(imp_controller, "ImportController", "REST API", "API endpoints for importing")
+                Container(IImp_service, "IImportService", "Spring Component", "Interface defining import functions")
+                Container(imp_service, "ImportService", "Spring Component", "Logic for performing imports")
+                }
+
+        Boundary(Employee, "") {
+        Container(emp_controller, "EmployeeController", "REST API", "API endpoints for employees")
+        Container(Iemp_service, "IEmployeeService", "Spring Component", "Interface defining employee management")
+        Container(emp_service, "EmployeeService", "Spring Component", "Logic for managing employees")
+        Container(Iemp_repository, "IEmployeeRepository", "Spring Data", "Interface defining data access for employees")
+        Container(emp_repository, "EmployeeRepository", "Spring Data", "Data access for employees")
+        Container(emp_model, "EmployeeModel", "JPA Entity", "Represents a employee entity")
+        }
+
+        Boundary(Hour, "") {
+        Container(hour_controller, "HourEntryController", "REST API", "API endpoints for Hour entries")
+        Container(Ihour_service, "IHourEntryService", "Spring Component", "Interface defining hour entry management")
+        Container(hour_service, "HourEntryService", "Spring Component", "Logic for managing hour entries")
+        Container(Ihour_repository, "IHourEntryRepository", "Spring Data", "Interface defining data access for hour entries")
+        Container(hour_repository, "HourEntryRepository", "Spring Data", "Data access for hour entries")
+        Container(hour_model, "HourEntryModel", "JPA Entity", "Represents a Hour entry entity")
+        }
+
+        Boundary(Authentication, "") {
+        Container(auth_controller, "AuthenticationController", "REST API", "API endpoints for authentication operations")
+        Container(auth_service, "CustomUserDetailService", "Spring Component", "Logic for managing users")
+        Container(Iuser_repository, "IUserRepository", "Spring Data", "Interface defining data access for users")
+        Container(user_repository, "UserRepository", "Spring Data", "Data access for users")
+        Container(user_model, "UserModel", "JPA Entity", "Represents a user entity")
+        }
+    }
+
+    ' Database Container
+    ContainerDb(database, "Postgres Database", "SQL", "Stores employee and hourEntry information")
+
+    ' Relationships within Backend Boundary
+    Rel(jwt_request_filter, jwt_util, "Uses")
+    Rel(jwt_request_filter, security_filter, "Redirects to")
+
+    Rel(auth_controller, auth_service, "Uses")
+    Rel(auth_service, Iuser_repository, "Uses")
+    Rel(user_repository, Iuser_repository, "Implements")
+    Rel(user_repository, database, "Reads/Writes")
+
+    Rel(emp_controller, Iemp_service, "Uses")
+    Rel(emp_service, Iemp_service, "Implements")
+    Rel(emp_service, Iemp_repository, "Uses")
+    Rel(emp_repository, Iemp_repository, "Implements")
+    Rel(emp_repository, database, "Reads/Writes")
+
+    Rel(hour_controller, Ihour_service, "Uses")
+    Rel(hour_service, Ihour_service, "Implements")
+    Rel(hour_service, Ihour_repository, "Uses")
+    Rel(hour_repository, Ihour_repository, "Implements")
+    Rel(hour_repository, database, "Reads/Writes")
+}
+
+System_Ext(ph, "Public Holiday API", "API that exposes the public holidays per year per country")
+System_Ext(yo, "Yoobi", "The hour logging tool used in-house at Quad Solutions.")
+
+' Relationships between User, Frontend, and Backend
+Rel(user, web_app, "Uses", "HTTPS requests")
+Rel(web_app, jwt_request_filter, "Uses", "HTTPS requests")
+Rel(security_filter, emp_controller, "Redirects", "Validates and redirects")
+Rel(security_filter, imp_controller, "Redirects", "Validates and redirects")
+Rel(imp_controller, hour_service, "Uses", "Imports hours")
+Rel(security_filter, hour_controller, "Redirects", "Validates and redirects")
+Rel(security_filter, auth_controller, "Redirects", "If request is a login request")
+
+Rel(hour_service, ph, "Uses", "Fetches public holidays")
+Rel(imp_controller, yo, "Uses", "Imports via CSV")
+
+@enduml

@@ -1,0 +1,20 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+!define DEVICONS https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/devicons
+!define FONTAWESOME https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-5
+!include DEVICONS/java.puml
+!include FONTAWESOME/users.puml
+
+Person(user, "User", "User of hour analysis tool", $sprite="users")
+Container(sys, "Hour analysis tool", "Both Spring BE as React FE", "The complete hour analysis tool", $sprite="java")
+
+System_Ext(yo, "Yoobi", "The hour logging tool used in-house at Quad Solutions.")
+System_Ext(ph, "Public Holiday API", "API that exposes the public holidays per year per country")
+
+Rel(user, sys, "Uses")
+Rel(sys, yo, "Uses")
+Rel(sys, ph, "Uses")
+
+SHOW_FLOATING_LEGEND()
+@enduml
